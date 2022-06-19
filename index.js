@@ -14,6 +14,7 @@ app.use(cors());
 
 connectDB();
 
+app.use("/public", express.static(`${__dirname}/storage/imgs`));
 app.use("/book", require("./router/booksRoutes"));
 app.get("/", (req, res) => {
   res.send("eCommerce API");

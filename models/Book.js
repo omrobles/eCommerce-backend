@@ -18,7 +18,7 @@ const bookSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    image: {
+    imgurl: {
       type: String,
       required: true,
     },
@@ -31,6 +31,10 @@ const bookSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+bookSchema.methods.setImgUrl = function setImgUrl(filename) {
+  return (this.imgurl = `${process.env.HOST}:${process.env.PORT}/public/${filename}`);
+};
 
 const Book = mongoose.model("Book", bookSchema);
 
