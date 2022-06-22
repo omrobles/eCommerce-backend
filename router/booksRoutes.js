@@ -4,8 +4,9 @@ const router = express.Router();
 const upload = require("../middlewares/storage");
 
 router.get("/get-books", async (req, res) => {
+  const { _id } = req.query;
   try {
-    const books = await Book.find({});
+    const books = _id ? await Book.find({ _id }) : await Book.find({});
     res.json(books);
   } catch (error) {
     res.status(500).json({

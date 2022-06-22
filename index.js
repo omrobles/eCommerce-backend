@@ -3,7 +3,6 @@ const app = express();
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-const Book = require("./models/Book");
 const connectDB = require("./config/db");
 
 require("dotenv").config();
@@ -16,6 +15,7 @@ connectDB();
 
 app.use("/public", express.static(`${__dirname}/storage/imgs`));
 app.use("/book", require("./router/booksRoutes"));
+app.use("/users", require("./router/userRoutes"));
 app.get("/", (req, res) => {
   res.send("eCommerce API");
 });
