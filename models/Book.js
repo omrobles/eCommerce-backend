@@ -33,7 +33,7 @@ const bookSchema = mongoose.Schema(
 );
 
 bookSchema.methods.setImgUrl = function setImgUrl(filename) {
-  return (this.imgurl = `${process.env.HOST}:${process.env.PORT}/public/${filename}`);
+  return (this.imgurl = `${process.env.HOST}/public/${filename}`);
 };
 
 const Book = mongoose.model("Book", bookSchema);

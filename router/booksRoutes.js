@@ -36,7 +36,7 @@ router.post("/add-book", upload.single("image"), async (req, res) => {
     tmpBook.setImgUrl(filename);
   }
 
-  const newBook = await Book.create({ tmpBook });
+  const newBook = await Book.create(tmpBook);
   res.json(newBook);
 });
 

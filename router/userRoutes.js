@@ -18,25 +18,30 @@ router.get("/get-users", async (req, res) => {
 router.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
   try {
-    const salt = await bcryptjs.genSalt(10);
-    const hashedPassword = await bcryptjs.hash(password, salt);
+    let foundUser = await User.findOne({ email });
+    if (!foundUser) {
+      const salt = await bcryptjs.genSalt(10);
+      const hashedPassword = await bcryptjs.hash(password, salt);
 
-    const newUser = await User.create({
-      name: name,
-      email: email,
-      password: hashedPassword,
-    });
+      const newUser = await User.create({
+        name: name,
+        email: email,
+        password: hashedPassword,
+      });
 
-    const payload = {
-      user: {
-        id: newUser._id,
-      },
-    };
+      const payload = {
+        user: {
+          id: newUser._id,
+        },
+      };
 
-    jwt.sign(payload, process.env.SECRET, { expiresIn: 360000 }, (error, token) => {
-      if (error) throw error;
-      res.json({ token });
-    });
+      jwt.sign(payload, process.env.SECRET, { expiresIn: 360000 }, (error, token) => {
+        if (error) throw error;
+        res.json({ token });
+      });
+    } else {
+      return res.status(400).json({ msg: "User already exist" });
+    }
   } catch (error) {
     return res.status(400).json({
       msg: error,
@@ -90,7 +95,7 @@ router.get("/verify-user", auth, async (req, res) => {
 
 router.put("/update-user", auth, async (req, res) => {
   const { name, email, address, cart, orders } = req.body;
-  console.log(req.body.cart);
+  console.log(req.body);
   try {
     const userUpdate = await User.findByIdAndUpdate(
       req.user.id,
@@ -98,6 +103,40 @@ router.put("/update-user", auth, async (req, res) => {
       { new: true }
     ).select("-password");
     res.json(userUpdate);
+  } catch (error) {
+    res.status(500).json({
+      msg: "An error ocurred updating user data.",
+      error,
+    });
+  }
+});
+
+router.put("/update-cart", auth, async (req, res) => {
+  const { name, email, address, cart, orders } = req.body;
+  try {
+    const cartUpdate = await User.findByIdAndUpdate(
+      req.user.id,
+      { name, email, address, $pull: { cart: cart, orders: orders } },
+      { new: true }
+    ).select("-password");
+    res.json(cartUpdate);
+  } catch (error) {
+    res.status(500).json({
+      msg: "An error ocurred updating user data.",
+      error,
+    });
+  }
+});
+
+router.put("/clear-cart", auth, async (req, res) => {
+  const { name, email, address, cart, orders } = req.body;
+  try {
+    const cartUpdate = await User.findByIdAndUpdate(
+      req.user.id,
+      { name, email, address, $set: { cart: [] }, $addToSet: { orders: orders } },
+      { new: true }
+    ).select("-password");
+    res.json(cartUpdate);
   } catch (error) {
     res.status(500).json({
       msg: "An error ocurred updating user data.",
